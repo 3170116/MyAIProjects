@@ -1,4 +1,4 @@
-class Tatoi():
+class Atoi():
 
     def __init__(self, first, second, third):
         self.first_row = first
@@ -18,7 +18,7 @@ class Tatoi():
 
                 second.insert(0,first[0])
                 del first[0]
-                result.append(Tatoi(first,second,third))
+                result.append(Atoi(first,second,third))
             
             if len(self.third_row) == 0 or self.first_row[0] < self.third_row[0]:
                 first = self.first_row[0:]
@@ -27,7 +27,7 @@ class Tatoi():
 
                 third.insert(0,first[0])
                 del first[0]
-                result.append(Tatoi(first,second,third))
+                result.append(Atoi(first,second,third))
         
         if len(self.second_row) > 0:
 
@@ -38,7 +38,7 @@ class Tatoi():
 
                 first.insert(0,second[0])
                 del second[0]
-                result.append(Tatoi(first,second,third))
+                result.append(Atoi(first,second,third))
             
             if len(self.third_row) == 0 or self.second_row[0] < self.third_row[0]:
                 first = self.first_row[0:]
@@ -47,7 +47,7 @@ class Tatoi():
 
                 third.insert(0,second[0])
                 del second[0]
-                result.append(Tatoi(first,second,third))
+                result.append(Atoi(first,second,third))
         
         if len(self.third_row) > 0:
 
@@ -58,7 +58,7 @@ class Tatoi():
 
                 first.insert(0,third[0])
                 del third[0]
-                result.append(Tatoi(first,second,third))
+                result.append(Atoi(first,second,third))
             
             if len(self.second_row) == 0 or self.third_row[0] < self.second_row[0]:
                 first = self.first_row[0:]
@@ -67,7 +67,7 @@ class Tatoi():
 
                 second.insert(0,third[0])
                 del third[0]
-                result.append(Tatoi(first,second,third))
+                result.append(Atoi(first,second,third))
         
         return result
 
@@ -96,7 +96,7 @@ class Tatoi():
 first = [1,2,3,4,5]
 second = []
 third = []
-tatoi = Tatoi(first,second,third)
+tatoi = Atoi(first,second,third)
 
 #BFS
 i = 0
