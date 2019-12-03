@@ -63,6 +63,7 @@ class Sudoku():
         idx = 0
         tests = 10
 
+        #finds the cell with the least cases
         for i in range(9*9):
 
             if self.array[i] == ' ':
