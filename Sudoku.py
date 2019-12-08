@@ -2,13 +2,25 @@ import random,time
 
 class Sudoku():
 
-    def __init__(self, array):
+    map_table = {0:0, 3:1, 6:2, 27:3, 30:4, 33:5, 54:6, 57:7, 60:8}
+
+    def __init__(self, array, is_random, in_row = [False for i in range(9*9)], in_column = [False for i in range(9*9)], in_sub_square = [False for i in range(9*9)]):
         self.array = array
+        self.in_row = in_row
+        self.in_column = in_column
+        self.in_sub_square = in_sub_square
+
+        if is_random:
+            for idx in range(9*9):
+                if self.array[idx] != ' ':
+                    self.in_row[9*(idx//9) + int(self.array[idx]) - 1] = True
+                    self.in_column[9*(idx%9) + int(self.array[idx]) - 1] = True
+                    self.in_sub_square[9*self.map_table[self.get_start_of_sub_square(idx)] + int(self.array[idx]) - 1] = True
 
 
     #is True if is valid to put number 's' to cell at index 'idx'
     def can_play(self,idx,s):
-        return (s not in self.getRow(idx//9)) and (s not in self.getColumn(idx%9)) and (s not in self.get_sub_square(idx))
+        return (not self.in_row[9*(idx//9) + int(s) - 1] and not self.in_column[9*(idx%9) + int(s) - 1] and not self.in_sub_square[9*self.map_table[self.get_start_of_sub_square(idx)] + int(s) - 1])
 
     #is True if the only valid number you can put at cell with index 'idx' is 's'
     def is_unique(self,idx,s):
@@ -45,12 +57,17 @@ class Sudoku():
     #finds an empty cell and checks if there is a unique number
     #which should be in that cell
     def start(self):
-        nums = [str(i+1) for i in range(9)]
 
         for idx in range(9*9):
-            for s in nums:
-                if self.array[idx] == ' ' and self.is_unique(idx,s):
-                    self.array[idx] = s
+            for num in range(9):
+                if self.array[idx] == ' ' and self.is_unique(idx,str(num + 1)):
+
+                    self.array[idx] = str(num + 1)
+
+                    self.in_row[9*(idx//9) + num] = True
+                    self.in_column[9*(idx%9) + num] = True
+                    self.in_sub_square[9*self.map_table[self.get_start_of_sub_square(idx)] + num] = True
+
                     return True
         
         return False
@@ -81,40 +98,27 @@ class Sudoku():
             if self.can_play(idx,num):
                 
                 new_array = self.array[:]
+                new_in_row = self.in_row[:]
+                new_in_column = self.in_column[:]
+                new_in_sub_square = self.in_sub_square[:]
+
                 new_array[idx] = num
-                yield Sudoku(new_array) #generate a new Sudoku state
-
+                new_in_row[9*(idx//9) + int(num) - 1] = True
+                new_in_column[9*(idx%9) + int(num) - 1] = True
+                new_in_sub_square[9*self.map_table[self.get_start_of_sub_square(idx)] + int(num) - 1] = True
+                
+                yield Sudoku(new_array,False,new_in_row,new_in_column,new_in_sub_square) #generate a new Sudoku state
     
-    #return the column with index 'index'
-    #'index' is a number between 0 and 8
-    def getColumn(self, index):
-        column = []
-        for i in range(9):
-            column.append(self.array[9*i + index])
-        return column
-
-    #return the row with index 'index'
-    #'index' is a number between 0 and 8
-    def getRow(self, index):
-        return self.array[9*index: 9*index + 9]
-
-    #finds the sub square in which number 'idx' belongs
-    def get_sub_square(self,idx):
+    #finds the start index of sub square that contains the number 'idx'
+    def get_start_of_sub_square(self,idx):
         start_points = [60,57,54,33,30,27,6,3,0]
         for point in start_points:
 
-            nums = []
             for i in range(3):
                 for j in range(3):
 
                     if point + i + 9*j == idx:
-
-                        sub_square = []
-                        for i in range(3):
-                            for j in range(3):
-                                sub_square.append(self.array[point + i + 9*j])
-
-                        return sub_square
+                        return point
  
     #is True when Sudoku is finished
     def isFull(self):
@@ -126,9 +130,10 @@ class Sudoku():
         score = 0
         
         for idx in range(9*9):
-            for s in range(10):
-                if not self.can_play(idx,str(s + 1)):
-                    score += 1
+            if self.array[idx] == ' ':
+                for s in range(9):
+                    if not self.can_play(idx,str(s + 1)):
+                        score += 1
         
         return score
 
@@ -142,22 +147,25 @@ class Sudoku():
 
 
 
+#this is the hardest Sudoku in the world!
 s = [
-    ' ','8',' ','5',' ','6',' ','2',' ',
-    '4',' ','9',' ',' ',' ','5','6',' ',
-    '6','5',' ',' ','2',' ',' ','1',' ',
-    ' ',' ',' ',' ',' ','1',' ',' ',' ',
-    ' ',' ',' ',' ',' ','8','2',' ','3',
-    '9',' ',' ',' ',' ',' ',' ',' ',' ',
-    ' ','6',' ','3',' ','2','9',' ',' ',
-    '3',' ','1','9',' ',' ',' ',' ',' ',
-    ' ',' ',' ','8','1',' ','6',' ',' '
+    '8',' ',' ',' ',' ',' ',' ',' ',' ',
+    ' ',' ','3','6',' ',' ',' ',' ',' ',
+    ' ','7',' ',' ','9',' ','2',' ',' ',
+    ' ','5',' ',' ',' ','7',' ',' ',' ',
+    ' ',' ',' ',' ','4','5','7',' ',' ',
+    ' ',' ',' ','1',' ',' ',' ','3',' ',
+    ' ',' ','1',' ',' ',' ',' ','6','8',
+    ' ',' ','8','5',' ',' ',' ','1',' ',
+    ' ','9',' ',' ',' ',' ','4',' ',' '
     ]
 
 if __name__ == '__main__':
     
     #DFS plus CNF
-    sudoku = Sudoku(s)
+    t1 = time.time()
+
+    sudoku = Sudoku(s,True)
     queue = [sudoku]
     while not queue[len(queue) - 1].isFull():
 
@@ -171,9 +179,9 @@ if __name__ == '__main__':
             sorted(tests,key = lambda x: x.score())
             for test in tests:
                 queue.append(test)
-        
-            pop.print()
-            print()
 
     queue[len(queue) - 1].print()
-    time.sleep(1000)
+
+    t2 = time.time()
+    print()
+    print(str(t2 - t1) + ' seconds')
